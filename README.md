@@ -3,6 +3,7 @@
 This repository contains notes on how to setup [KubeEdge](https://github.com/kubeedge/kubeedge) on Azure AKS.
 
 **:warning: This was only tested using KubeEdge v1.7.1 :warning:**
+
 **:warning: Do not use this in production environments as it still contains errors and glitches :warning:**
 
 ## Setup AKS
@@ -122,6 +123,7 @@ helm install \
 ```
 
 **:warning: Warning :warning:**
+
 You may want to look after a service called `cloudcore` using `kubectl get service`. If the service is not deployed properly, please modify `spec.loadBalancerIP` in `manifeet/service.example.yaml` and deploy it using `kubectl apply -f manifest/service.example.yaml`.
 
 If everything went fine ou can view the logs of the cloudcore pod and the service should be reachable from external.
@@ -166,3 +168,24 @@ NAME        TYPE           CLUSTER-IP   EXTERNAL-IP     PORT(S)                 
 cloudcore   LoadBalancer   10.0.48.54   123.123.123.123   10002:30002/TCP,10000:30000/TCP   13h
 ```
 
+## Setup edge device
+
+For this you need to have docker installed locally as the kubeedge nodes run in a docker container.
+Copy `values.conf.example` and modify it.
+
+```sh
+cd edge/edgecore
+cp template/values.conf.example template/values.conf
+./instanciate.sh mynode
+```
+
+**:warning: When you close this terminal, the node will be deleted. :warning:**
+
+Check if the node `mynode` has been successfully added
+
+```sh
+kubectl get nodes
+NAME                                STATUS   ROLES               AGE   VERSION
+aks-agentpool-82236215-vmss000000   Ready    agent               29h   v1.20.7
+mynode                              Ready    agent,edge          4s    v1.19.3-kubeedge-v1.7.1
+```
