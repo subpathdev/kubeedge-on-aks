@@ -171,11 +171,12 @@ cloudcore   LoadBalancer   10.0.48.54   123.123.123.123   10002:30002/TCP,10000:
 ## Setup edge device
 
 For this you need to have docker installed locally as the kubeedge nodes run in a docker container.
-Copy `values.conf.example` and modify it.
+Copy `values.conf.example` and modify it. Build the image locally and instanciate a node. The name `mynode` is optional. If no name is provided, a random name is chosen for you.
 
 ```sh
 cd edge/edgecore
 cp template/values.conf.example template/values.conf
+docker build -t edge:latest .
 ./instanciate.sh mynode
 ```
 
