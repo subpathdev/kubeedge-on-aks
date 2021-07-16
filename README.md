@@ -1,6 +1,7 @@
 # KubeEdge on Azure AKS
 
 This repository contains notes on how to setup [KubeEdge](https://github.com/kubeedge/kubeedge) on Azure AKS.
+It is loosely based on [adriangonz/kubeedge-talk](https://github.com/adriangonz/kubeedge-talk).
 
 **:warning: This was only tested using KubeEdge v1.7.1 :warning:**
 
