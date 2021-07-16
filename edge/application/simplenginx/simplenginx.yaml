@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: simplenginx
+spec:
+  selector:
+    matchLabels:
+      simplenginx: simplenginx
+  template:
+    metadata:
+      labels:
+        simplenginx: simplenginx
+    spec:
+      containers:
+      - name: simplenginx
+        image: nginx
+        ports:
+        - containerPort: 80
+          hostPort: 8080
+      nodeSelector:
+        simplenginx: simplenginx

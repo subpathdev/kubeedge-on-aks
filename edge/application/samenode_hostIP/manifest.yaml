@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: curl
+spec:
+  selector:
+    matchLabels:
+      curl: curl
+  template:
+    metadata:
+      labels:
+        curl: curl
+    spec:
+      containers:
+        - name: curl
+          # This image takes $HOST as argument and runs cyclic curl commands on this host forvever 
+          # showing that the DNS resolution and pod2pod communication is basically working.
+          image: siredmar/curl:latest
+          env:
+          - name: HOST
+            # WARNING: don't use http://... for curl
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+      nodeSelector:
+        curl: curl
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      nginx: nginx
+  template:
+    metadata:
+      labels:
+        nginx: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+          hostPort: 80
+      nodeSelector:
+        nginx: nginx

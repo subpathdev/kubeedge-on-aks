@@ -190,3 +190,56 @@ NAME                                STATUS   ROLES               AGE   VERSION
 aks-agentpool-82236215-vmss000000   Ready    agent               29h   v1.20.7
 mynode                              Ready    agent,edge          4s    v1.19.3-kubeedge-v1.7.1
 ```
+
+## Deploy some applications
+
+### Simple nginx
+
+This is a very basic example of a DaemonSet (gets deployed on every node the node selector matches), that runs a nginx instance.
+
+```yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+      nodeSelector:
+        app: nginx
+```
+
+Label the node and apply it using kubectl
+
+```sh
+cd edge/application
+kubectl label nodes mynode simplenginx=simplenginx
+kubectl apply -f simplenginx/simplenginx.yaml
+```
+
+Monitor the pods being created
+
+```sh
+$ kubectl get pods
+NAME                         READY   STATUS    RESTARTS   AGE
+cloudcore-67b79b7785-mlsfh   1/1     Running   0          25h
+simplenginx-4bb72            1/1     Running   0          31s
+```
+
+Now start an interactive shell within your virtual kubeedge device `mynode` and verify if the nginx container is running. 
+You may repeat `docker ps` until the container comes alive.
+
+```sh
+docker exec -it mynode bash
+docker ps
+```
+

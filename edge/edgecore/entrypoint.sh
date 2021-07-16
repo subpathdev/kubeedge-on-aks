@@ -51,7 +51,8 @@ echo ${PONG}
 
 # Start the second process
 echo Starting edgecore
-/usr/local/bin/edgecore
+mkdir -p /var/log/kubeedge
+/usr/local/bin/edgecore --log-dir /var/log/kubeedge
 status=$?
 if [ $status -ne 0 ]; then
   echo "Failed to start my_second_process: $status"

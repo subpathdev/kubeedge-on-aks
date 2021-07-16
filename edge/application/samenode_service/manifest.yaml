@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: curlservice
+spec:
+  selector:
+    matchLabels:
+      curlservice: curlservice
+  template:
+    metadata:
+      labels:
+        curlservice: curlservice
+    spec:
+      containers:
+        - name: curlservice
+          # This image takes $HOST as argument and runs cyclic curl commands on this host forvever 
+          # showing that the DNS resolution and pod2pod communication is basically working.
+          image: siredmar/curl:latest
+          env:
+          - name: HOST
+            # WARNING: don't use http://... for curl
+            value: "nginx-svc.kubeedge.svc.cluster.local:8082"
+      nodeSelector:
+        curlservice: curlservice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  type: NodePort
+  # clusterIP: None
+  selector:
+    name: nginxservice
+  ports:
+    - name: http-0
+      protocol: TCP
+      # external
+      port: 8082
+      # container port
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: nginxservice
+spec:
+  selector:
+    matchLabels:
+      nginxservice: nginxservice
+  template:
+    metadata:
+      labels:
+        nginxservice: nginxservice
+    spec:
+      containers:
+      - name: nginxservice
+        image: nginx
+        ports:
+        - containerPort: 80
+      nodeSelector:
+        nginxservice: nginxservice
