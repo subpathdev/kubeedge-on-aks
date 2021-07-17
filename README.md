@@ -172,10 +172,10 @@ cloudcore   LoadBalancer   10.0.48.54   123.123.123.123   10002:30002/TCP,10000:
 ## Setup edge device
 
 For this you need to have docker installed locally as the kubeedge nodes run in a docker container.
-Copy `values.conf.example` and modify it. Build the image locally and instanciate a node. The name `mynode` is optional. If no name is provided, a random name is chosen for you.
+Copy `values.conf.example` and modify it. You find introductions in the file. Build the image locally and instanciate a node. The name `mynode` is optional. If no name is provided, a random name is chosen for you.
 
 ```sh
-$ kubectl namespace kubeedge
+$ kubectl ns kubeedge
 $ cd edge/edgecore
 # Get rootCA.crt, server.crt and server.key from cloudcore
 $ kubectl get secrets casecret -o jsonpath='{.data}' | jq -r '.cadata' > config/ca/rootCa.crt
@@ -420,3 +420,123 @@ sys	0m0.000s
 Fri Jul 16 11:38:59 UTC 2021
 # ... and many more
 ```
+
+
+### Pod using PersistentVolume
+
+This example shows a pod running nginx (port 80) using a persistent volume. It mounts the default nginx files location to the hosts filesystem on `/mnt/data/`, meaning if you edit the `/mnt/data/index.html` the nginx running in the pod can read and deliver it.
+
+See [persistent_volume/manifest.yaml](edge/application/persistent_volume/manifest.yaml)
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: task-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: task-pv-pod
+spec:
+  volumes:
+    - name: task-pv-storage
+      persistentVolumeClaim:
+        claimName: task-pv-claim
+  containers:
+    - name: task-pv-container
+      image: nginx
+      ports:
+        - containerPort: 80
+          hostPort: 8080
+          name: "http-server"
+      volumeMounts:
+        - mountPath: "/usr/share/nginx/html"
+          name: task-pv-storage
+  nodeSelector:
+    app: pv
+```
+
+Label the node and apply it using kubectl
+
+```sh
+$ cd edge/application
+$ kubectl create ns tenant1
+$ kubectl ns tenant1
+$ kubectl label nodes mynode app=pv
+$ kubectl apply -f persistent_volume/manifest.yaml
+persistentvolume/task-pv-volume created
+persistentvolumeclaim/task-pv-claim created
+pod/task-pv-pod created
+```
+
+Monitor the pod being created
+
+```sh
+$ kubectl get pods -o wide
+NAME                         READY   STATUS    RESTARTS   AGE   IP           NODE                                NOMINATED NODE   READINESS GATES
+cloudcore-67b79b7785-mlsfh   1/1     Running   0          27h   10.240.0.4   aks-agentpool-82236215-vmss000000   <none>           <none>
+task-pv-pod                  1/1     Running   0          8m18s 172.18.0.2   node0                               <none>           <none>
+```
+
+Watch PersistentVolumes and PersistentVolumeClaims
+
+```sh
+$ kubectl get persistentvolumeclaims
+NAME            STATUS   VOLUME           CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+task-pv-claim   Bound    task-pv-volume   1Gi        RWO            manual         116s
+$ kubectl get persistentvolume      
+NAME                                       CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS   CLAIM                    STORAGECLASS   REASON   AGE
+task-pv-volume                             1Gi        RWO            Retain           Bound    tenant1/task-pv-claim    manual                  2m1s
+```
+
+Now start an interactive shell within your virtual kubeedge device `mynode` and verify if the nginx container is running. 
+You may repeat `docker ps` until the container comes alive.
+
+```sh
+# Start a shell in the virtual node
+$ docker exec -it mynode bash
+# check for running containers
+$ docker ps
+CONTAINER ID        IMAGE                COMMAND                  CREATED             STATUS              PORTS                  NAMES
+54fc888dc56d        nginx                "/docker-entrypoint.…"   2 minutes ago       Up 2 minutes                               k8s_task-pv-container_task-pv-pod_tenant1_5bbef361-b43d-4740-a6e5-9893bae3bdf6_0
+6dfd74ff48da        kubeedge/pause:3.1   "/pause"                 2 minutes ago       Up 2 minutes        0.0.0.0:8080->80/tcp   k8s_POD_task-pv-pod_tenant1_5bbef361-b43d-4740-a6e5-9893bae3bdf6_0
+# Read nginx from host network on port 8080
+$ curl localhost:8080
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.21.1</center>
+</body>
+</html>
+# This error results in a missing index.html, as the volume is mounted `/usr/share/nginx/html` to `/mnt/data` but this is empty.
+# Lets create a basic index.html
+$ echo Hello from KubeEdge running on AKS > /mnt/data/index.html
+# Let's try it again
+$ curl localhost:8080
+Hello from KubeEdge running on AKS
+```
+

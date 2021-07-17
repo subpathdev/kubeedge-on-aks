@@ -2,4 +2,5 @@
 # obtain the IP using `kubectl get service cloudcore -o jsonpath='{.status.loadBalancer.ingress[0].ip}'`
 CLOUDCORE_IP=123.123.123
 # get token from seed cluster running `kubectl get secrets tokensecret -o jsonpath='{.data}' | jq -r '.tokendata' | base64 -d`
+# Warning: don't put the trailing '%' at the end!
 TOKEN="enter your token"

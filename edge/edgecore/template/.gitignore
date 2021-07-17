@@ -1,1 +1,3 @@
 values.conf
+*.kubermatic
+values.conf.kubermatic
