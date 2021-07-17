@@ -175,7 +175,12 @@ For this you need to have docker installed locally as the kubeedge nodes run in 
 Copy `values.conf.example` and modify it. Build the image locally and instanciate a node. The name `mynode` is optional. If no name is provided, a random name is chosen for you.
 
 ```sh
+$ kubectl namespace kubeedge
 $ cd edge/edgecore
+# Get rootCA.crt, server.crt and server.key from cloudcore
+$ kubectl get secrets casecret -o jsonpath='{.data}' | jq -r '.cadata' > config/ca/rootCa.crt
+$ kubectl get secrets cloudcoresecret -o jsonpath='{.data}' | jq -r '.cloudcoredata' > config/cert/server.crt
+$ kubectl get secrets cloudcoresecret -o jsonpath='{.data}' | jq -r '.cloudcorekeydata' > config/cert/server.key
 $ cp template/values.conf.example template/values.conf
 $ docker build -t edge:latest .
 $ ./instanciate.sh mynode
