@@ -246,7 +246,7 @@ cloudcore-67b79b7785-mlsfh   1/1     Running   0          27h   10.240.0.4   aks
 simplenginx-gsw4r            1/1     Running   0          26s   172.18.0.2   mynode                              <none>           <none>
 ```
 
-Now start an interactive shell within your virtual kubeedge device `mynode` and verify if the nginx container is running. 
+Now start an interactive shell within your virtual kubeedge device `mynode` and verify that the nginx container is running. 
 You may repeat `docker ps` until the container comes alive.
 
 ```sh
@@ -366,7 +366,7 @@ curl-5hlcj                   1/1     Running   0          53s   172.18.0.3   myn
 nginx-vc7hp                  1/1     Running   0          53s   172.18.0.2   mynode                              <none>           <none>
 ```
 
-Now start an interactive shell within your virtual kubeedge device `mynode` and verify if the nginx container is running. 
+Now start an interactive shell within your virtual kubeedge device `mynode` and verify that the nginx container is running. 
 You may repeat `docker ps` until the container comes alive.
 
 ```sh
@@ -420,7 +420,6 @@ sys	0m0.000s
 Fri Jul 16 11:38:59 UTC 2021
 # ... and many more
 ```
-
 
 ### Pod using PersistentVolume
 
@@ -512,7 +511,7 @@ NAME                                       CAPACITY   ACCESS MODES   RECLAIM POL
 task-pv-volume                             1Gi        RWO            Retain           Bound    tenant1/task-pv-claim    manual                  2m1s
 ```
 
-Now start an interactive shell within your virtual kubeedge device `mynode` and verify if the nginx container is running. 
+Now start an interactive shell within your virtual kubeedge device `mynode` and verify that the nginx container is running. 
 You may repeat `docker ps` until the container comes alive.
 
 ```sh
@@ -540,3 +539,83 @@ $ curl localhost:8080
 Hello from KubeEdge running on AKS
 ```
 
+### Pod using secret
+
+This example shows a pod using a secret. It shows that secrets can be used within pods. In this example the secret is used as a file within a pod. 
+
+See [secretasfile/manifest.yaml](edge/application/secretasfile/manifest.yaml)
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque 
+data:
+  # created using `echo -n 'myuser' | base64`
+  username: bXl1c2Vy
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secretasfile
+spec:
+  containers:
+  - name: echo
+    image: bash:5
+    command: ["/bin/sh"]
+    args: ["-c","while true; do date; cat /mnt/secrets/username; echo; sleep 1; done"]
+    volumeMounts:
+    - name: secret-volume
+      mountPath: "/mnt/secrets"
+      readOnly: true
+  volumes:
+  - name: secret-volume
+    secret:
+      secretName: mysecret
+  nodeSelector:
+    app: secretasfile
+```
+
+Label the node and apply it using kubectl
+
+```sh
+$ cd edge/application
+$ kubectl create ns mynamespace
+$ kubectl ns mynamespace
+# delete label app if already set by another example
+$ kubectl label nodes mynode app-
+$ kubectl label nodes mynode app=secretasfile
+$ kubectl apply -f secretasfile/manifest.yaml
+secret/mysecret created
+pod/secretasfile created
+```
+
+Monitor the pod being created
+
+```sh
+$ kubectl get pods -o wide
+NAME                         READY   STATUS    RESTARTS   AGE   IP           NODE   NOMINATED NODE   READINESS GATES
+secretasfile                 1/1     Running   0          20s   172.18.0.2   node0  <none>           <none>
+```
+
+Now start an interactive shell within your virtual kubeedge device `mynode` and verify that the container is running. 
+You may repeat `docker ps` until the container comes alive.
+
+```sh
+# Start a shell in the virtual node
+$ docker exec -it mynode bash
+# check for running containers
+$ docker ps
+CONTAINER ID        IMAGE                COMMAND                  CREATED              STATUS              PORTS               NAMES
+2ae3dae96663        d057f4d6e5e2         "/bin/sh -c 'while t…"   About a minute ago   Up About a minute                       k8s_echo_secretasfile_tenant1_da8f0168-4994-43fe-a62f-b82b8d366c36_0
+cfde15c17abc        kubeedge/pause:3.1   "/pause"                 About a minute ago   Up About a minute                       k8s_POD_secretasfile_tenant1_da8f0168-4994-43fe-a62f-b82b8d366c36_0
+# see docker logs, that should output the content of the secret and the date
+$ docker logs k8s_echo_secretasfile_tenant1_da8f0168-4994-43fe-a62f-b82b8d366c36_0
+Mon Jul 19 07:43:40 UTC 2021
+myuser
+Mon Jul 19 07:43:41 UTC 2021
+myuser
+Mon Jul 19 07:43:42 UTC 2021
+myuser
+```

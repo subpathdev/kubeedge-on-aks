@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mysecret
+type: Opaque 
+data:
+  # created using `echo -n 'myuser' | base64`
+  username: bXl1c2Vy
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secretasfile
+spec:
+  containers:
+  - name: echo
+    image: bash:5
+    command: ["/bin/sh"]
+    args: ["-c","while true; do date; cat /mnt/secrets/username; echo; sleep 1; done"]
+    volumeMounts:
+    - name: secret-volume
+      mountPath: "/mnt/secrets"
+      readOnly: true
+  volumes:
+  - name: secret-volume
+    secret:
+      secretName: mysecret
+  nodeSelector:
+    app: secretasfile
