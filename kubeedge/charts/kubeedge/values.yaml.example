@@ -1,4 +1,4 @@
-# Enter your PublicIP you've created on Azure namespace "MC_..." for kubeedge cluster
+# optional: enter your PublicIP you've created on Azure namespace "MC_..." for kubeedge cluster
 loadBalancerIp: 123.123.132.123
 
 service:
@@ -6,7 +6,7 @@ service:
 
 cloudHub:
   advertiseAddress:
-    # Enter your PublicIP you've created on Azure namespace "MC_..." for kubeedge cluster
+    # Enter your PublicIP you've created on Azure namespace "MC_..." for kubeedge cluster or the LoadBalancer told the service cloudcore to use.
     - 123.123.132.123
   https:
     port: 10002

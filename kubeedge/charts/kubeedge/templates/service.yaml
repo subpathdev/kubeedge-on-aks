@@ -1,20 +1,23 @@
+{{ if .Values.loadBalancerIp }}
 apiVersion: v1
 kind: Service
 metadata:
   name: cloudcore
-  namespace: kubeedge
+  namespace: {{ .Release.Namespace }}
   labels:
     k8s-app: kubeedge
     kubeedge: cloudcore
 spec:
   ports:
-  - port: 10002
+  - port: {{ .Values.cloudHub.https.port }}
     nodePort: 30002
     name: https
-  - port: 10000
+  - port: {{ .Values.cloudHub.websocket.port }}
     nodePort: 30000
     name: wss
   selector:
     k8s-app: kubeedge
     kubeedge: cloudcore
-  type: LoadBalancer
+  type: {{ .Values.service.type }} 
+  loadBalancerIP: {{ .Values.loadBalancerIp }}
+{{ end }}

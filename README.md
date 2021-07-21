@@ -111,9 +111,18 @@ Copy values.yaml
 $ cd kubeedge
 $ cp charts/kubeedge/values.yaml.example charts/kubeedge/values.yaml
 ```
-
-Modify in the file charts/kubeedge/values.yaml the sections `loadBalancerIp` and `cloudHub.advertiseAddress` to match your public IP created above. After that install the helm chart.
+If you have created a public IP and want that, then modify in the file charts/kubeedge/values.yaml the sections `loadBalancerIp` and `cloudHub.advertiseAddress` to match your public IP created above. If you didn't create a public IP, then you have to create a LoadBalancer service first and put that IP address into the `cloudHub.advertiseAddress`. After that install the helm chart.
 This helm chart deploys every CustomResourceDefinition (crd) needed for CloudCore, a serviceaccount, a clusterrole, a clusterrolebinding, the configmaps, the deployment and the service itself.
+
+These are the steps to install that service called `cloudcore` using `kubectl get service` for your LoadBalancerIP. Deploy `manifeet/service.example.yaml` it using `kubectl apply -f manifest/service.example.yaml` and get the IP address using this
+
+```sh
+kubectl get service -n kubeedge
+NAME        TYPE           CLUSTER-IP    EXTERNAL-IP       PORT(S)                           AGE
+cloudcore   LoadBalancer   10.0.48.54    123.123.123.123   10002:30002/TCP,10000:30000/TCP   1m
+```
+
+Deploy kubeedge using helm after you've modified charts/kubeedge/values.yaml with that IP address.
 
 ```sh
 $ kubectl create ns kubeedge
@@ -122,10 +131,6 @@ $ helm install \
     ./charts/kubeedge \
     --namespace kubeedge
 ```
-
-**:warning: Warning :warning:**
-
-You may want to look after a service called `cloudcore` using `kubectl get service`. If the service is not deployed properly, please modify `spec.loadBalancerIP` in `manifeet/service.example.yaml` and deploy it using `kubectl apply -f manifest/service.example.yaml`.
 
 If everything went fine ou can view the logs of the cloudcore pod and the service should be reachable from external.
 
@@ -165,7 +170,7 @@ I0715 07:51:59.033321       1 server.go:64] Starting cloudhub websocket server
 I0715 07:52:00.864735       1 upstream.go:63] Start upstream devicecontroller
 
 $ kubectl get service
-NAME        TYPE           CLUSTER-IP   EXTERNAL-IP     PORT(S)                           AGE
+NAME        TYPE           CLUSTER-IP   EXTERNAL-IP       PORT(S)                           AGE
 cloudcore   LoadBalancer   10.0.48.54   123.123.123.123   10002:30002/TCP,10000:30000/TCP   13h
 ```
 
