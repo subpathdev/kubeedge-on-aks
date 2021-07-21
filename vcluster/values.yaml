@@ -1,5 +1,0 @@
-syncer:
-  extraArgs:
-    - --fake-nodes=false
-    - --sync-all-nodes=true
-
