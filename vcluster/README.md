@@ -1,3 +1,40 @@
+```sh
+# create namespace for running the virtual cluster
+$ kubectl create namespace tenant1
+namespace/tenant1 created
+# edit service/manifest.yaml to adapt the tenants public IP 
+$ kubectl --namespace tenant1 apply --filename service/manifest.yaml
+service/tenant1-cluster created
+# save the loadbalancer IP. It's the one created for the tenant
+$ export VCLUSER_IP=$(kubectl --namespace tenant1 get service tenant1-cluster --output jsonpath="{.status.loadBalancer.ingress[0].ip}")
+# check if it is the same that you provided
+$ echo ${VCLUSER_IP}
+```
+
+Modify the IP address in `values.yaml` for key `--tls-san` to match your tenants public IP stored in `${VCLUSTER_IP}`.
+Then create the vcluster with this values.yaml (your IP address instead of `123.123.123.132`).
+
+```yaml
+syncer:
+  extraArgs:
+    - --fake-nodes=false
+    - --sync-all-nodes=true
+    - --tls-san=123.123.132.123
+```
+
+```sh
+$ vcluster --namespace tenant1 create tenant1 --extra-values values.yaml --expose
+[info]   execute command: helm upgrade tenant1 vcluster --repo https://charts.loft.sh --version 0.3.1 --kubeconfig /tmp/812722248 --namespace tenant1 --install --repository-config='' --values /tmp/074600711 --values values.yaml
+[done] √ Successfully created virtual cluster tenant1 in namespace tenant1. Use 'vcluster connect tenant1 --namespace tenant1' to access the virtual cluster
+$ vcluster connect tenant1 --namespace tenant1 --server $VCLUSER_IP
+```
+
+
+
+
+
+
+
 # Using vcluser to seperate tenants
 
 This shows how to setup virtual clusters for a multitenant setup using [vcluster](https://www.vcluster.com/docs/what-are-virtual-clusters).

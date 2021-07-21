@@ -181,6 +181,7 @@ $ cd edge/edgecore
 $ kubectl get secrets casecret -o jsonpath='{.data}' | jq -r '.cadata' > config/ca/rootCa.crt
 $ kubectl get secrets cloudcoresecret -o jsonpath='{.data}' | jq -r '.cloudcoredata' > config/certs/server.crt
 $ kubectl get secrets cloudcoresecret -o jsonpath='{.data}' | jq -r '.cloudcorekeydata' > config/certs/server.key
+# modify template/values.conf
 $ cp template/values.conf.example template/values.conf
 $ docker build -t edge:latest .
 $ ./instanciate.sh mynode
