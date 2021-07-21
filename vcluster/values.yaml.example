@@ -1,0 +1,9 @@
+syncer:
+  extraArgs:
+    - --fake-nodes=false
+    # make this true, to enable all nodes
+    - --sync-all-nodes=false
+    # when --sync-all-nodes=false, use this to make node a selection for e.g. a tenant
+    - --node-selector=tenant=tenant1
+    - --tls-san=123.123.123.123
+

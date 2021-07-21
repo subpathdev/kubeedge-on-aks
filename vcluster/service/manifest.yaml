@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tenant1-cluster
+spec:
+  selector:
+    app: vcluster
+    release: tenant1
+  ports:
+    - name: https
+      port: 443
+      targetPort: 8443
+      protocol: TCP
+  type: LoadBalancer
