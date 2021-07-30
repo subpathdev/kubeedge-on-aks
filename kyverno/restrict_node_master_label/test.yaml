@@ -1,0 +1,10 @@
+name: restrict_node_master_label
+policies:
+  -  restrict_node_master_label.yaml
+resources:
+  -  resource.yaml
+results:
+  - policy: forbid-master-role
+    rule: forbid-kubernets-azure-com-role
+    resource: node
+    status: pass

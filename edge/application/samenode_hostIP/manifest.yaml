@@ -22,8 +22,19 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.hostIP
-      nodeSelector:
-        curl: curl
+      # only schedule this on devices that have a specific label
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: edgefarm.io/samenodeHostIP
+                operator: Exists
+      # only schedule this on kubeedge devices
+      tolerations:
+        - key: "node-role.kubernetes.io/edge"
+          operator: "Exists"
+          effect: "NoExecute"
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -44,5 +55,16 @@ spec:
         ports:
         - containerPort: 80
           hostPort: 80
-      nodeSelector:
-        nginx: nginx
+      # only schedule this on devices that have a specific label
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: edgefarm.io/samenodeHostIP
+                operator: Exists
+      # only schedule this on kubeedge devices
+      tolerations:
+        - key: "node-role.kubernetes.io/edge"
+          operator: "Exists"
+          effect: "NoExecute"

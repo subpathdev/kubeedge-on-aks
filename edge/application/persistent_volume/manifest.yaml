@@ -12,6 +12,12 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: "/mnt/data"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+          - key: edgefarm.io/persistentvolume
+            operator: Exists
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -44,5 +50,16 @@ spec:
       volumeMounts:
         - mountPath: "/usr/share/nginx/html"
           name: task-pv-storage
-  nodeSelector:
-    app: pv
+    # only schedule this on devices that have a specific label
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: edgefarm.io/persistentvolume
+            operator: Exists
+  # only schedule this on kubeedge devices
+  tolerations:
+    - key: "node-role.kubernetes.io/edge"
+      operator: "Exists"
+      effect: "NoExecute"
