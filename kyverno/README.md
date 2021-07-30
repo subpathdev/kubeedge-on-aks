@@ -9,7 +9,7 @@ This shows how it can be done using kyverno.
 ```sh
 helm repo add kyverno https://kyverno.github.io/kyverno/
 helm repo update
-helm install kyverno kyverno/kyverno --namespace kyverno --create-namespace
+helm install kyverno kyverno/kyverno --namespace kyverno --create-namespace -f values.yaml
 ```
 
 Next apply the rule that to restrict the deletion or altering of the node labels `edgefarm.tenant`.
