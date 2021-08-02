@@ -1,0 +1,11 @@
+{
+  \"kind\": \"Node\",
+  \"apiVersion\": \"v1\",
+  \"metadata\": {
+    \"name\": \"${EDGE_NAME}\",
+    \"labels\": {
+      \"name\": \"${EDGE_NAME}\",
+      \"node-role.kubernetes.io/edge\": \"\"
+    }
+  }
+}

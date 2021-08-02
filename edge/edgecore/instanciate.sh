@@ -7,7 +7,16 @@
 
 EDGE_NAME=${1}
 if [ "$#" -ne 1 ]; then
-    EDGE_NAME=kubeedge-$(uuidgen)
+    #EDGE_NAME=kubeedge-$(uuidgen)
+    EDGE_NAME=`tr -dc a-z </dev/urandom | head -c 20 ; echo ''`
 fi
 echo Creating virtual kubeedge node with called ${EDGE_NAME}
-docker run --rm --privileged -e EDGE_NAME=${EDGE_NAME} --name ${EDGE_NAME} edge:latest
+template=template/node.json.TEMPLATE
+values=template/values.conf
+
+. "${values}"
+TMPFILE=`mktemp`
+eval "echo \"$(cat "${template}")\"" > ${TMPFILE}
+cat ${TMPFILE}
+kubectl apply -f ${TMPFILE}
+docker run -d --rm --privileged -e EDGE_NAME=${EDGE_NAME} --name ${EDGE_NAME} edge:latest
