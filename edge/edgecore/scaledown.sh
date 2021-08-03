@@ -1,6 +1,7 @@
 #!/bin/bash
 #!/bin/bash
-for i in {1..100}
+for i in {1..300}
 do
-  docker kill node${i}
+  docker kill ${1:-node}${i}
+  kubectl delete node ${1:-node}${i}
 done

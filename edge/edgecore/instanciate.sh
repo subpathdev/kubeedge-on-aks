@@ -19,4 +19,4 @@ TMPFILE=`mktemp`
 eval "echo \"$(cat "${template}")\"" > ${TMPFILE}
 cat ${TMPFILE}
 kubectl apply -f ${TMPFILE}
-docker run -d --rm --privileged -e EDGE_NAME=${EDGE_NAME} --name ${EDGE_NAME} edge:latest
+docker run -d --privileged -e EDGE_NAME=${EDGE_NAME} --name ${EDGE_NAME} edge:latest

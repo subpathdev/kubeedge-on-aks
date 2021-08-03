@@ -6,6 +6,13 @@
     \"labels\": {
       \"name\": \"${EDGE_NAME}\",
       \"node-role.kubernetes.io/edge\": \"\"
+      }
+    },
+  \"spec\": {
+     \"taints\": [
+        {
+          \"effect\": \"NoExecute\",
+          \"key\": \"edgefarm.applications\"
+        }]
     }
-  }
 }
