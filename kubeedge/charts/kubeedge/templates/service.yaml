@@ -12,6 +12,10 @@ spec:
     name: https
   - port: 10000
     name: wss
+  - port: 10003
+    name: wss
+  - port: 10004
+    name: wss
   selector:
     k8s-app: kubeedge
     kubeedge: cloudcore
