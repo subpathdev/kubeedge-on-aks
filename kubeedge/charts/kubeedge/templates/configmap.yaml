@@ -15,10 +15,6 @@ data:
       master: ""
     modules:
       cloudHub:
-        {{- with .Values.cloudHub.advertiseAddress }}
-        advertiseAddress:
-        {{ toYaml . | indent 2 }}
-        {{- end }}
         https:
           address: 0.0.0.0
           enable: true
@@ -34,3 +30,14 @@ data:
           address: 0.0.0.0
           enable: true
           port: {{ .Values.cloudHub.websocket.port }}
+        cloudStream:
+          enable: true
+          streamPort: 10003
+          tlsStreamCAFile: /etc/kubeedge/ca/streamCA.crt
+          tlsStreamCertFile: /etc/kubeedge/certs/stream.crt
+          tlsStreamPrivateKeyFile: /etc/kubeedge/certs/stream.key
+          tlsTunnelCAFile: /etc/kubeedge/ca/rootCA.crt
+          tlsTunnelCertFile: /etc/kubeedge/certs/server.crt
+          tlsTunnelPrivateKeyFile: /etc/kubeedge/certs/server.key
+          tunnelPort: 10004
+        

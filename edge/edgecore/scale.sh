@@ -6,6 +6,6 @@ END=`expr ${START} + ${NUM}`
 echo Adding ${NUM} devices from ${START} to ${END}
 for (( i=$START; i<=$END; i++ ))
 do
-  ./instanciate.sh flo${i}
+  ./instanciate.sh jan${i}
   sleep 1
 done
