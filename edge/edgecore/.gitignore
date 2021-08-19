@@ -1,0 +1,3 @@
+config/ca/rootCa.crt
+config/certs/server.crt
+config/certs/server.key

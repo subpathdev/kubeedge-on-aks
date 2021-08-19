@@ -1,4 +1,7 @@
 #!/bin/bash
+rm -rf config
+mkdir -p config/ca
+mkdir -p config/certs
 kubectl get secrets casecret -o jsonpath='{.data}' -n kubeedge | jq -r '.cadata' > config/ca/rootCa.crt
 kubectl get secrets cloudcoresecret -o jsonpath='{.data}' -n kubeedge | jq -r '.cloudcoredata' > config/certs/server.crt
 kubectl get secrets cloudcoresecret -o jsonpath='{.data}' -n kubeedge | jq -r '.cloudcorekeydata' > config/certs/server.key
