@@ -15,6 +15,10 @@ data:
       master: ""
     modules:
       cloudHub:
+        {{- with .Values.cloudHub.advertiseAddress }}
+        advertiseAddress:
+        {{ toYaml . | indent 2 }}
+        {{- end }}
         https:
           address: 0.0.0.0
           enable: true
@@ -41,3 +45,4 @@ data:
           tlsTunnelPrivateKeyFile: /etc/kubeedge/certs/edge.key
           tunnelPort: 10004
         
+
