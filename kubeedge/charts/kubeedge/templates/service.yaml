@@ -6,20 +6,19 @@ metadata:
   labels:
     k8s-app: kubeedge
     kubeedge: cloudcore
+  annotations:
+    load-balancer.hetzner.cloud/location: nbg1
 spec:
   ports:
-  - port: 10002
+  - port: {{ .Values.cloudHub.https.port }}
     name: https
-  - port: 10000
+  - port: {{ .Values.cloudHub.websocket.port }}
     name: wss
-  - port: 10003
-    name: wss
-  - port: 10004
-    name: wss
+  - port: {{ .Values.cloudHub.stream.port }}
+    name: stream
+  - port: {{ .Values.cloudHub.tunnel.port }}
+    name: tunnel
   selector:
     k8s-app: kubeedge
     kubeedge: cloudcore
-  type: {{ .Values.service.type }} 
-{{ if .Values.loadBalancerIp }}
-  loadBalancerIP: {{ .Values.loadBalancerIp }}
-{{ end }}
+  type: LoadBalancer
