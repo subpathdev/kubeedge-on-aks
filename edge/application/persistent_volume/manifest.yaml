@@ -1,27 +1,8 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: task-pv-claim
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
-  selector:
-    matchExpressions:
-      - {key: edgefarm.io/persistentvolume, operator: Exists}
----
-apiVersion: v1
 kind: Pod
 metadata:
   name: task-pv-pod
 spec:
-  volumes:
-    - name: task-pv-storage
-      persistentVolumeClaim:
-        claimName: task-pv-claim
   containers:
     - name: task-pv-container
       image: nginx
@@ -30,18 +11,27 @@ spec:
           hostPort: 8080
           name: "http-server"
       volumeMounts:
-        - mountPath: "/usr/share/nginx/html"
-          name: task-pv-storage
-    # only schedule this on devices that have a specific label
+        - mountPath: /usr/share/nginx/html
+          name: nginx-volume
+  volumes:
+    - name: nginx-volume
+      # see https://kubernetes.io/docs/concepts/storage/volumes/#hostpath for more hostPath options
+      hostPath:
+        path: /data
+        type: DirectoryOrCreate
+
+      # only schedule this on devices that have a specific label
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
-        - matchExpressions:
-          - key: edgefarm.io/persistentvolume
-            operator: Exists
+          - matchExpressions:
+              - key: name
+                operator: In
+                values:
+                  - hetzner0
   # only schedule this on kubeedge devices
   tolerations:
-    - key: "node-role.kubernetes.io/edge"
+    - key: "edgefarm.applications"
       operator: "Exists"
       effect: "NoExecute"

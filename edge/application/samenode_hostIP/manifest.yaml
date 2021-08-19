@@ -13,26 +13,26 @@ spec:
     spec:
       containers:
         - name: curl
-          # This image takes $HOST as argument and runs cyclic curl commands on this host forvever 
+          # This image takes $HOST as argument and runs cyclic curl commands on this host forvever
           # showing that the DNS resolution and pod2pod communication is basically working.
           image: siredmar/curl:latest
           env:
-          - name: HOST
-            # WARNING: don't use http://... for curl
-            valueFrom:
-              fieldRef:
-                fieldPath: status.hostIP
+            - name: HOST
+              # WARNING: don't use http://... for curl
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
       # only schedule this on devices that have a specific label
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
-            - matchExpressions:
-              - key: edgefarm.io/samenodeHostIP
-                operator: Exists
+              - matchExpressions:
+                  - key: edgefarm.io/samenodeHostIP
+                    operator: Exists
       # only schedule this on kubeedge devices
       tolerations:
-        - key: "node-role.kubernetes.io/edge"
+        - key: "edgefarm.applications"
           operator: "Exists"
           effect: "NoExecute"
 ---
@@ -50,21 +50,21 @@ spec:
         nginx: nginx
     spec:
       containers:
-      - name: nginx
-        image: nginx
-        ports:
-        - containerPort: 80
-          hostPort: 80
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+              hostPort: 80
       # only schedule this on devices that have a specific label
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
-            - matchExpressions:
-              - key: edgefarm.io/samenodeHostIP
-                operator: Exists
+              - matchExpressions:
+                  - key: edgefarm.io/samenodeHostIP
+                    operator: Exists
       # only schedule this on kubeedge devices
       tolerations:
-        - key: "node-role.kubernetes.io/edge"
+        - key: "edgefarm.applications"
           operator: "Exists"
           effect: "NoExecute"

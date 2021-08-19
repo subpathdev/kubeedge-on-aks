@@ -12,21 +12,21 @@ spec:
         simplenginx: simplenginx
     spec:
       containers:
-      - name: simplenginx
-        image: nginx
-        ports:
-        - containerPort: 80
-          hostPort: 8080
+        - name: simplenginx
+          image: nginx
+          ports:
+            - containerPort: 80
+              hostPort: 8080
       # only schedule this on devices that have a specific label
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
-            - matchExpressions:
-              - key: edgefarm.io/simplenginx
-                operator: Exists
+              - matchExpressions:
+                  - key: edgefarm.io/simplenginx
+                    operator: Exists
       # only schedule this on kubeedge devices
       tolerations:
-        - key: "node-role.kubernetes.io/edge"
+        - key: "edgefarm.applications"
           operator: "Exists"
           effect: "NoExecute"

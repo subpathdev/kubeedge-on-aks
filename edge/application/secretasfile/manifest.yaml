@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: mysecret
-type: Opaque 
+type: Opaque
 data:
   # created using `echo -n 'myuser' | base64`
   username: bXl1c2Vy
@@ -13,28 +13,32 @@ metadata:
   name: secretasfile
 spec:
   containers:
-  - name: echo
-    image: bash:5
-    command: ["/bin/sh"]
-    args: ["-c","while true; do date; cat /mnt/secrets/username; echo; sleep 1; done"]
-    volumeMounts:
-    - name: secret-volume
-      mountPath: "/mnt/secrets"
-      readOnly: true
+    - name: echo
+      image: bash:5
+      command: ["/bin/sh"]
+      args:
+        [
+          "-c",
+          "while true; do date; cat /mnt/secrets/username; echo; sleep 1; done",
+        ]
+      volumeMounts:
+        - name: secret-volume
+          mountPath: "/mnt/secrets"
+          readOnly: true
   volumes:
-  - name: secret-volume
-    secret:
-      secretName: mysecret
-# only schedule this on devices that have a specific label
+    - name: secret-volume
+      secret:
+        secretName: mysecret
+  # only schedule this on devices that have a specific label
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
         nodeSelectorTerms:
-        - matchExpressions:
-          - key: edgefarm.io/secretasfile
-            operator: Exists
+          - matchExpressions:
+              - key: edgefarm.io/secretasfile
+                operator: Exists
   # only schedule this on kubeedge devices
   tolerations:
-    - key: "node-role.kubernetes.io/edge"
+    - key: "edgefarm.applications"
       operator: "Exists"
       effect: "NoExecute"
