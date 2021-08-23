@@ -3,6 +3,10 @@ service:
   type: LoadBalancer
 
 cloudHub:
+  advertiseAddress:
+  - 127.0.0.1
+  dnsNames:
+  - 127.0.0.1.nip.io
   https:
     port: 10001
   websocket:
