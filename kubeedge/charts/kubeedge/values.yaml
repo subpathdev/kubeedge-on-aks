@@ -1,0 +1,13 @@
+# optional: enter your PublicIP you've created on Azure namespace "MC_..." for kubeedge cluster
+service:
+  type: LoadBalancer
+
+cloudHub:
+  https:
+    port: 10001
+  websocket:
+    port: 10000
+  tunnel:
+    port: 10002
+  stream:
+    port: 10003
